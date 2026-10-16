@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>امتحان منتصف الفصل الدراسي - البرمجة والذكاء الاصطناعي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .code-block {
+            direction: ltr;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Top Header & Sticky Bar -->
+    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-700 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                
+                <!-- Title & Badge -->
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-blue-500/20 p-2.5 rounded-xl border border-blue-400/30">
+                        <i class="fa-solid fa-laptop-code text-2xl text-blue-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wide">امتحان منتصف الفصل الدراسي</h1>
+                        <p class="text-xs text-blue-200">البرمجة والذكاء الاصطناعي - الصف الثاني الثانوي (100 سؤال)</p>
+                    </div>
+                </div>
+
+                <!-- Timer & Controls -->
+                <div class="flex items-center space-x-4 space-x-reverse bg-slate-900/50 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
+                    <div class="flex items-center space-x-2 space-x-reverse">
+                        <i class="fa-regular fa-clock text-amber-400 text-lg animate-pulse"></i>
+                        <span class="text-xs text-slate-300">الوقت المتبقي:</span>
+                        <span id="timer" class="font-mono text-lg md:text-xl font-bold text-amber-400 tracking-wider">02:00:00</span>
+                    </div>
+                    <button id="submitBtnHeader" onclick="confirmSubmit()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-xl font-semibold text-xs transition duration-200 shadow-md hover:shadow-emerald-900/30">
+                        تسليم الامتحان
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mt-3 pt-2 border-t border-white/10 flex items-center gap-4">
+                <div class="flex-1 bg-slate-800/80 rounded-full h-2.5 overflow-hidden p-0.5 border border-white/5">
+                    <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="text-xs font-semibold text-blue-200 min-w-[90px] text-left">
+                    مُجاب: <span id="answeredCount" class="text-white font-bold">0</span> / 100
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        
+        <!-- Welcome Banner / Quick Instructions -->
+        <div id="instructionsBanner" class="bg-blue-50 border-right-4 border-blue-600 p-4 rounded-2xl mb-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <i class="fa-solid fa-circle-info text-blue-600 text-2xl"></i>
+                <div>
+                    <h3 class="font-bold text-blue-900 text-sm md:text-base">تعليمات الامتحان</h3>
+                    <p class="text-xs md:text-sm text-blue-800">يتكون هذا الامتحان من 100 سؤال اختيار من متعدد. اختر الإجابة الصحيحة لكل سؤال، وسوف تظهر درجتك والتصحيح الكامل فور التسليم.</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('instructionsBanner').remove()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold underline self-end sm:self-center">
+                إخفاء التعليمات
+            </button>
+        </div>
+
+        <!-- Filter Controls -->
+        <div id="filterControls" class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-500">تصفية الأسئلة:</span>
+                <button onclick="filterQuestions('all')" id="btnFilterAll" class="px-3 py-1 rounded-xl text-xs font-bold bg-brand-600 text-white transition">الكل (100)</button>
+                <button onclick="filterQuestions('unanswered')" id="btnFilterUnanswered" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">غير محلولة</button>
+                <button onclick="filterQuestions('answered')" id="btnFilterAnswered" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">تمت إجابتها</button>
+            </div>
+            <div class="text-xs text-slate-400 font-semibold">
+                * يمكنك التناقل المباشر والرد بأي ترتيب
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questionsContainer" class="space-y-6">
+            <!-- Questions rendered via JS -->
+        </div>
+
+        <!-- Result View (Hidden Initially) -->
+        <div id="resultCard" class="hidden space-y-8">
+            <!-- Summary Dashboard -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500"></div>
+                
+                <div class="inline-flex items-center justify-center p-4 bg-blue-50 rounded-full mb-4 text-brand-600">
+                    <i id="badgeIcon" class="fa-solid fa-trophy text-4xl"></i>
+                </div>
+                
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-2">نتيجة الامتحان</h2>
+                <p id="performanceMessage" class="text-slate-600 font-semibold mb-6">تمت معالجة إجاباتك بنجاح!</p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-8">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">الدرجة النهائية</span>
+                        <span id="scoreText" class="text-2xl sm:text-3xl font-black text-brand-600">0 / 100</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">النسبة المئوية</span>
+                        <span id="percentageText" class="text-2xl sm:text-3xl font-black text-emerald-600">0%</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">الإجابات الصحيحة</span>
+                        <span id="correctCountText" class="text-2xl sm:text-3xl font-black text-emerald-500">0</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="block text-xs font-bold text-slate-400 mb-1">الإجابات الخاطئة</span>
+                        <span id="wrongCountText" class="text-2xl sm:text-3xl font-black text-rose-500">0</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button onclick="scrollToReview()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-2xl text-sm transition shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-magnifying-glass font-bold ml-2"></i> مراجعة وتصحيح الأسئلة
+                    </button>
+                    <button onclick="location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-2.5 rounded-2xl text-sm transition">
+                        <i class="fa-solid fa-rotate-right ml-2"></i> إعادة الامتحان
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Correction Header -->
+            <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-emerald-400"></i> مراجعة شاملة للأسئلة وتصحيح الأخطاء
+                </h3>
+                <span class="text-xs text-slate-400">توضيح نموذج الإجابة الرسمي مع الشرح</span>
+            </div>
+
+            <!-- Detailed Corrections Container -->
+            <div id="correctionsContainer" class="space-y-6">
+                <!-- Corrections loaded via JS -->
+            </div>
+        </div>
+
+        <!-- Bottom Submit Section -->
+        <div id="bottomSubmitArea" class="mt-12 text-center bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">هل انتهيت من جميع الأسئلة؟</h3>
+            <p class="text-sm text-slate-500 mb-6">تأكد من مراجعة إجاباتك جيداً قبل التسليم النهائي.</p>
+            <button onclick="confirmSubmit()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3.5 rounded-2xl font-black text-base transition shadow-xl shadow-emerald-600/20">
+                <i class="fa-solid fa-paper-plane ml-2"></i> تسليم الامتحان الآن
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center shadow-2xl border border-slate-100 animate-scale-up">
+            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">تأكيد تسليم الامتحان</h3>
+            <p id="modalWarningText" class="text-sm text-slate-600 mb-6">هل أنت تأكد من اختتام الامتحان وتأكيد الإجابات؟</p>
+
+            <div class="flex gap-3">
+                <button onclick="finalizeSubmit()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-sm transition">
+                    نعم، سلم الامتحان
+                </button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl font-bold text-sm transition">
+                    مراجعة الأسئلة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 text-center border-t border-slate-800">
+        <p>منهج البرمجة والذكاء الاصطناعي - وزارة التربية والتعليم والتعليم الفني المصري</p>
+        <p class="mt-1 text-slate-500">تم التقييم أوتوماتيكياً بناءً على الكتاب المدرسي المعتمد</p>
+    </footer>
+
+    <!-- JavaScript Application Logic & Data -->
+    <script>
+        // 100 Comprehensive Questions Database
+        const rawQuestions = [
+            // Client-Server Architecture & Concepts (1-15)
+            {
+                q: "ما هو الدور الأساسي لـ (Client) في نموذج العميل والخادم؟",
+                options: ["تخزين قواعد البيانات الحساسة", "إرسال طلبات الحصول على البيانات أو الخدمات من الخادم", "إدارة صلاحيات الشبكة المركزية", "تشغيل البرامج الخلفية للمعالجة"],
+                answer: 1,
+                explanation: "العميل (Client) هو الجهاز أو البرنامج (مثل المتصفح) الذي يرسل الطلبات للحصول على البيانات من الخادم."
+            },
+            {
+                q: "ما الدور الذي يقوم به الخادم (Server) في تطبيقات الويب؟",
+                options: ["عرض الواجهة الرسومية فقط", "استقبال الطلبات ومعالجتها وإرجاع الاستجابة للعميل", "كتابة كود البرمجة للمستعمل", "تأمين جهاز المستخدم شخصياً"],
+                answer: 1,
+                explanation: "الخادم يستقبل طلبات العملاء، يعالجها برمجياً، ثم يرجع الاستجابة المناسبة."
+            },
+            {
+                q: "أي من الآتي يعتبر مثالاً واضحاً على 'العميل' (Client)؟",
+                options: ["متصفح Google Chrome على هاتفك", "خادم قواعد بيانات MySQL", "موزع الشبكة (Router)", "كابل الإنترنت الفايبر"],
+                answer: 0,
+                explanation: "المتصفحات وتطبيقات الهواتف تعتبر عملاء تقوم بإرسال طلبات الويب."
+            },
+            {
+                q: "يعتبر نموذج العميل والخادم (Client-Server Architecture) نموذجاً قائمًا على:",
+                options: ["الاتصال العشوائي دون بروتوكولات", "الطلب والاستجابة (Request - Response)", "التخزين المحلي الدائم فقط", "الاتصال من طرف واحد دون رد"],
+                answer: 1,
+                explanation: "تعتمد بنية العميل والخادم على دورة الطلب من العميل والاستجابة من الخادم."
+            },
+            {
+                q: "ما الذي يحدث عندما تدخل عنوان موقع في المتصفح وتضغط Enter؟",
+                options: ["يقوم الخادم بتحديث جهازك", "يرسل العميل طلب HTTP/HTTPS إلى الخادم المعني", "يتم تحميل قاعدة البيانات داخل شاشة العميل", "ينقطع الاتصال فوراً"],
+                answer: 1,
+                explanation: "عند كتابة URL، يرسل المتصفح طلب اتصال بالخادم المضيف للموقع."
+            },
+            {
+                q: "أي مما يلي ليس من خصائص العميل (Client)؟",
+                options: ["يوفر واجهة التفاعل للمستخدم", "يعالج طلبات الآلاف من المستخدمين في وقت واحد", "يرسل البيانات المدمجة في النموذج", "يعرض استجابة الصفحات"],
+                answer: 1,
+                explanation: "معالجة الطلبات الكثيفة من اختصاص الخادم ذو الإمكانيات العالية وليس العميل."
+            },
+            {
+                q: "أين تقع قواعد البيانات والمعالجات البرمجية المعقدة عادةً؟",
+                options: ["في متصفح المستخدم", "في حاسوب العميل", "على جانب الخادم (Server-side)", "في كارت الشاشة"],
+                answer: 2,
+                explanation: "البيانات والمعالجة الحساسة والمعقدة تُدار في الخادم لحمايتها وتمركزها."
+            },
+            {
+                q: "ما المعيار الذي يجعل الخادم قادرًا على تلبية آلاف الطلبات؟",
+                options: ["شاشة عرض كبيرة", "إمكانيات عتادية عالية وشبكة سريعة ونظام إدارة خوادم", "استخدام بطارية إضافية", "استخدام متصفح حديث فقط"],
+                answer: 1,
+                explanation: "تتطلب الخوادم مواصفات عتادية وشبكية عالية للتعامل مع الطلبات المتزامنة."
+            },
+            {
+                q: "أي مما يلي يصف العلاقة بين العميل والخادم؟",
+                options: ["العميل يقدم الخدمة والخادم يطلبها", "العميل يطلب الخدمة والخادم يقدمها", "كلاهما يقدم نفس الخدمة تلقائياً", "لا يوجد اتصال مباشر بينهما"],
+                answer: 1,
+                explanation: "تعتمد العلاقة على طلب الخدمة من العميل وتقديمها من قبل الخادم."
+            },
+            {
+                q: "عند تحميل صفحة ويب بها صور ونصوص، كم طلب يتولد عادة؟",
+                options: ["طلب واحد دائماً", "عدة طلبات HTTP للحصول على الملفات المختلفة", "لا يتولد أي طلب", "طلب واحد فقط للصور"],
+                answer: 1,
+                explanation: "يتولد طلب مستقل لكل عنصر مكمل للصفحة كالصور وملفات الاستايل والسكربتات."
+            },
+
+            // HTTP & HTTPS & Security (11-25)
+            {
+                q: "ما هو الاختصار المباشر لـ HTTP؟",
+                options: ["HyperText Transfer Protocol", "High Technical Transfer Program", "Hyperlink Text Tool Process", "Home Terminal Transfer Protocol"],
+                answer: 0,
+                explanation: "HTTP يعني بروتوكول نقل النص الفائق HyperText Transfer Protocol."
+            },
+            {
+                q: "ما الحرف الإضافي (S) في بروتوكول HTTPS وإلامَ يشير؟",
+                options: ["Speed (سرعة)", "Secure (آمن)", "Server (خادم)", "System (نظام)"],
+                answer: 1,
+                explanation: "حرف S يشير إلى Secure أي أنه يستخدم التشفير لحماية البيانات."
+            },
+            {
+                q: "ما هي التقنية المستخدمة في HTTPS لتشفير وحماية نقل البيانات؟",
+                options: ["CSS3", "TLS / SSL", "JSON", "HTML5"],
+                answer: 1,
+                explanation: "يستخدم بروتوكول HTTPS التشفير بواسطة TLS (Transport Layer Security) أو SSL."
+            },
+            {
+                q: "لماذا يفضل استخدام HTTPS عند تصميم صفحة تسجيل الدخول؟",
+                options: ["لأنه يجعل الصفحة ملونة", "لتشفير كلمات المرور والبيانات الشخصية أثناء نقلها في الشبكة", "لزيادة سرعة الإنترنت", "لأنه يعمل بدون إنترنت"],
+                answer: 1,
+                explanation: "HTTPS يضمن تشفير البيانات الحساسة ككلمات المرور لمنع التجسس عليها."
+            },
+            {
+                q: "ما المخاطرة الرئيسية عند نقل معلومات المشتريات والبطاقات عبر HTTP العادي؟",
+                options: ["بطء النقل فقط", "إمكانية اعتراض البيانات وقراءتها بسهولة من المتنصتين", "تلف الشاشة", "زيادة حجم الملفات"],
+                answer: 1,
+                explanation: "بروتوكول HTTP العادي يرسل البيانات كنص واضح متاح للرؤية إذا تم اعتراضه."
+            },
+            {
+                q: "أي البروتوكولات التالية يوصى به لجميع مواقع الويب الحديثة؟",
+                options: ["HTTP", "HTTPS", "FTP فقط", "SMTP"],
+                answer: 1,
+                explanation: "تعتبر HTTPS هي المعيار القياسي لجميع المواقع الإلكترونية الحديثة لحماية الخصوصية."
+            },
+            {
+                q: "كيف يمكنك المعرفة البصرية بأن الموقع الذي تزوره يستعمل بروتوكولاً آمناً؟",
+                options: ["ظهور القفل بجانب رابط الموقع في المتصفح", "لون الخلفية أحمر", "وجود إعلانات كثيرة", "تغير اسم الصفحة"],
+                answer: 0,
+                explanation: "رمز القفل بجوار URL في المتصفح يشير للاتصال الآمن المشفر HTTPS."
+            },
+            {
+                q: "بروتوكول HTTP يعتبر من البروتوكولات اللا-حالة (Stateless) مما يعني أنه:",
+                options: ["لا يعتمد على السيرفر", "لا يحتفظ بمعلومات عن الطلبات السابقة تلقائياً", "لا ينقل النصوص", "يعمل فقط في أوقات معينة"],
+                answer: 1,
+                explanation: "Stateless تعني أن كل طلب يعامل كأنه مستقل تماماً دون تذكر الطلبات السابقة تلقائياً."
+            },
+            {
+                q: "ما فائدة تشفير البيانات بين العميل والخادم؟",
+                options: ["حماية سلامة البيانات وسريتها وعدم تعديلها أثناء النقل", "تصغير حجم الصورة", "تسريع إغلاق الجهاز", "تغيير لغة الموقع"],
+                answer: 0,
+                explanation: "التشفير يحمي سريّة المحتوى ويضمن عدم التعديل عليه أثناء الانتقال عبر الشبكة."
+            },
+
+            // HTTP Methods: GET vs POST (20-35)
+            {
+                q: "تُستخدم طريقة الطلب (GET) أساساً لـ:",
+                options: ["تحديث كلمة المرور في قاعدة البيانات", "طلب واسترجاع البيانات من الخادم دون تعديلها", "مسح حساب المستخدم", "رفع مقطع فيديو ضخم"],
+                answer: 1,
+                explanation: "طريقة GET مخصصة لاسترجاع وقراءة البيانات من الخادم دون إحداث تغيير دائم."
+            },
+            {
+                q: "أين تظهر البيانات المرفقة عند إرسال طلب باستخدام طريقة (GET)؟",
+                options: ["في جسم الطلب (Request Body)", "تظهر مكشوفة داخل رابط الصفحة (URL Query Strings)", "تخزن في الذاكرة المؤقتة للراوتر فقط", "تختفي تماماً ولا تظهر لأحد"],
+                answer: 1,
+                explanation: "في طلبات GET، تلحق البيانات برابط الـ URL على شكل عناصر ملحقة (Query Parameters)."
+            },
+            {
+                q: "تُفضل طريقة الطلب (POST) على طريقة (GET) في أي من الحالات التالية؟",
+                options: ["عرض صفحة مقال عام", "إرسال بيانات حساسّة مثل نموذج تسجيل الدخول ورقم السر", "البحث عن كلمة في جوجل", "فتح صفحة الاتصال بنا"],
+                answer: 1,
+                explanation: "POST هي الأنسب للبيانات الحساسة ككلمات المرور لأنها تُرسل داخل Request Body بشكل غير ظاهر في الرابط."
+            },
+            {
+                q: "أين يتم تضمين البيانات في طلب الـ (POST)؟",
+                options: ["في رابط الصفحة URL", "داخل جسم الطلب (Request Body)", "في اسم الملف", "في إعدادات المتصفح"],
+                answer: 1,
+                explanation: "في طلبات POST تُضمّن البيانات داخل جسم الطلب الخفي (Request Body)."
+            },
+            {
+                q: "أي الطرق التالية تسمح بإرسال أحجام بيانات كبيرة جداً كالصور والملفات؟",
+                options: ["GET", "POST", "HTTP_SMALL", "URL_DATA"],
+                answer: 1,
+                explanation: "طريقة POST لا توجد لها قيود صارمة على الحجم مقارنةً بـ GET المحدودة في الرابط."
+            },
+            {
+                q: "ما النتيجة المتوقعة عند عمل Bookmark (إشارة مرجعية) لطلب ينفذ عبر GET؟",
+                options: ["لا يمكن حفظه", "يمكن حفظ الرابط بنفس المعايير والوصول إليه لاحقاً بسهولة", "سوف يتغير إلى POST", "حذف الصفحة"],
+                answer: 1,
+                explanation: "روابط GET تحتوي المعايير في الـ URL مما يسهل حفظها ومشاركتها."
+            },
+            {
+                q: "لماذا لا يُفضل استخدام GET لإرسال نماذج تسجيل الحسابات؟",
+                options: ["لأنها بطيئة جداً", "لأن البيانات ستظهر علناً في شريط العنوان وتاريخ المتصفح (History)", "لأنها تحذف الحساب", "لأنها لا تعتمد على السيرفر"],
+                answer: 1,
+                explanation: "إظهار كلمة المرور في الـ URL عبر GET ينتهك معايير الأمان ويسهل تسريبها."
+            },
+            {
+                q: "أي من الطرق الآتية تعتبر مناسبة للاستعلام عن سعر منتج بالبحث؟",
+                options: ["POST", "GET", "DELETE", "UPDATE"],
+                answer: 1,
+                explanation: "البحث عن بيانات واستعلامها يُجرى نموذجياً باستعمال GET."
+            },
+            {
+                q: "إذا أردت إنشاء حساب جديد في موقع، فإن النموذج يُرسل غالباً باستخدام طريقة:",
+                options: ["GET", "POST", "FETCH_ONLY", "DOWNLOAD"],
+                answer: 1,
+                explanation: "إنشاء الموارد الجديدة وإرسال البيانات الحساسة يتطلب استخدام طريقة POST."
+            },
+
+            // HTTP Status Codes (30-45)
+            {
+                q: "ماذا يمثل رمز حالة الاستجابة (Status Code) من الخادم؟",
+                options: ["سرعة خط الإنترنت", "نتيجة معالجة الخادم للطلب المرسل من العميل", "حجم الصفحة بالكيلوبايت", "عدد زوار الموقع"],
+                answer: 1,
+                explanation: "رموز الحالة تُعلم العميل بنتيجة معالجة الخادم لطلبه (نجاح، خطأ، غير موجود.. إلخ)."
+            },
+            {
+                q: "ما معنى رمز الحالة (200 OK)؟",
+                options: ["المورد غير موجود", "نجح الطلب وتمت معالجته وإرجاع النتيجة بنجاح", "خطأ في خادم الموقع", "تم رفض طلبك لدواعي أمنية"],
+                answer: 1,
+                explanation: "الرمز 200 يشير إلى نجاح العملية بالكامل وتلبية الطلب."
+            },
+            {
+                q: "ماذا يعني ظهور رمز الحالة المشهور (404 Not Found)؟",
+                options: ["الخادم مغلق تماماً", "الصفحة أو المورد المطلوب غير موجود على الخادم", "نجاح الاتصال", "كلمة المرور خاطئة"],
+                answer: 1,
+                explanation: "404 يشير إلى أن العنوان المطلوبة أو الصفحة غير موجودة على المضيف."
+            },
+            {
+                q: "رمز الحالة (500 Internal Server Error) يشير إلى وجود خطأ في:",
+                options: ["جهاز العميل والمصادقة", "جانب الخادم نفسه أثناء معالجة الكود", "سلك الاتصال المحلي", "اسم المستخدم فقط"],
+                answer: 1,
+                explanation: "500 يعني وجود مشكلة برمجية أو استثناء داخلي لم يستطع الخادم التعامل معه."
+            },
+            {
+                q: "أي فئة من رموز الحالة تبدأ بالرقم (2xx) مثل 200 و 201؟",
+                options: ["رموز إعادة التوجيه", "رموز النجاح (Success)", "أخطاء العميل", "أخطاء الخادم"],
+                answer: 1,
+                explanation: "الفئة 2xx تعبر دائماً عن استجابات النجاح."
+            },
+            {
+                q: "أي فئة من رموز الحالة تبدأ بالرقم (4xx) مثل 401 و 404؟",
+                options: ["أخطاء العميل (Client Errors)", "أخطاء الخادم", "استجابات معلوماتية", "نجاح الطلب"],
+                answer: 0,
+                explanation: "الفئة 4xx تعبر عن أخطاء صادرة من جهة العميل أو الطلب الخاطئ."
+            },
+            {
+                q: "أي فئة من رموز الحالة تبدأ بالرقم (5xx) مثل 500 و 503؟",
+                options: ["أخطاء الخادم (Server Errors)", "نجاح الطلب", "إعادة التوجيه", "أخطاء العميل"],
+                answer: 0,
+                explanation: "الفئة 5xx تعبر عن فشل الخادم أو تعطل الخدمة خلفياً."
+            },
+            {
+                q: "إذا قمت بطلب صفحة تم تغيير عنوانها نهائياً أو تحويلها، ما الفئة المتوقعة؟",
+                options: ["1xx", "2xx", "3xx (Redirection)", "5xx"],
+                answer: 2,
+                explanation: "الفئة 3xx ترتبط بإعادة التوجيه (Redirection)."
+            },
+            {
+                q: "عند كتابة رابط صفحة بشكل خاطئ بالحروف، فإن الرمز الأرجح ظهوره هو:",
+                options: ["200", "404", "500", "201"],
+                answer: 1,
+                explanation: "الخطأ في اسم الصفحة يؤدي لرمز 404 لعدم وجود الملف."
+            },
+
+            // APIs & JSON Data Format (40-55)
+            {
+                q: "ما هو اختصار API؟",
+                options: ["Application Programming Interface", "Advanced Program Internet", "Automated Python Integration", "Apple Process Interaction"],
+                answer: 0,
+                explanation: "API تعني واجهة برمجة التطبيقات Application Programming Interface."
+            },
+            {
+                q: "ما الوظيفة الأساسية للـ API في تطبيقات الويب؟",
+                options: ["تصميم الصور والجرافيك", "السماح للتطبيقات والبرامج المختلفة بالاتصال وتبادل البيانات والمعلومات", "تنظيف جهاز الحاسوب", "تجميع مكونات الحاسوب العتادية"],
+                answer: 1,
+                explanation: "API تعتبر الجسر والوسيط الذي يتيح للتطبيقات البرمجية التفاعل وتبادل البيانات بسهولة."
+            },
+            {
+                q: "ما هي صيغة JSON المستعملة بكثرة في نقل البيانات عبر الـ APIs؟",
+                options: ["JavaScript Object Notation", "Java System Online Network", "Joint Server Option News", "JavaScript Open Node"],
+                answer: 0,
+                explanation: "JSON اختصار لـ JavaScript Object Notation."
+            },
+            {
+                q: "لماذا تُفضل صيغة JSON في تبادل البيانات بين العميل والخادم؟",
+                options: ["لأنها صيغة خفيفة وسهلة القراءة من البشر والآلات وتدعمها أغلب اللغات", "لأنها تشفر الأجهزة تلقائياً", "لأنها تلغي الحاجة للخادم", "لأنها صعبة الفهم"],
+                answer: 0,
+                explanation: "JSON خفيفة الوزن ومفهومة للبرمجيات والمطورين وسريعة في المعالجة."
+            },
+            {
+                q: "كيف تُمثّل البيانات في صيغة JSON عادةً؟",
+                options: ["على شكل أزواج من المفاتيح والقيم { Key : Value }", "على شكل فقرات نصية متصلة", "أكواد ثنائية 0 و 1 فقط", "جداول إكسل"],
+                answer: 0,
+                explanation: "تنسيق JSON يعتمد على الأزواج المرتبطة: المفتاح والقيمة داخل أقواس مجعدة {}."
+            },
+            {
+                q: "أي من العبارات التالية تعتبر كود JSON صحيحاً؟",
+                options: ["{ 'name': 'أحمد', 'age': 17 }", "name = أحمد , age = 17", "<name>أحمد</name>", "[name: أحمد]"],
+                answer: 0,
+                explanation: "JSON يستخدم الأقواس {} والمفاتيح النصية المزدوجة لتحديد الكائنات."
+            },
+            {
+                q: "عند استخدام تطبيق الطقس في هاتفك ليعرض درجة الحرارة في مدينتك، فإنه يستعين بـ:",
+                options: ["API خاص بالخدمات الجوية لجلب البيانات بصيغة JSON", "برنامج الرسام", "طلب شريحة SIM حصراً", "تعديل الذاكرة العشوائية RAM"],
+                answer: 0,
+                explanation: "تطبيقات الطقس تستدعي Weather API يجلب البيانات من سيرفرات الأرصاد."
+            },
+            {
+                q: "هل يمكن استخدام JSON مع لغات برمجة أخرى غير الجافاسكريبت مثل البايثون؟",
+                options: ["لا، تعمل مع الجافاسكريبت فقط", "نعم، هي صيغة عالمية مدعومة في معظم لغات البرمجة بما فيها Python", "نعم، ولكن فقط في الأجهزة القديمة", "لا، تعمل مع HTML فقط"],
+                answer: 1,
+                explanation: "تنسيق JSON مستمر ومستقل ومصمم ليكون مدعوماً من كل لغات البرمجة الحادية."
+            },
+            {
+                q: "تستطيع واجهة الـ API إرجاع الاستجابات على هيئة:",
+                options: ["نصوص JSON أو XML", "ملفات فيديو فقط", "أوامر لإطفاء الجهاز", "صور نادرة فقط"],
+                answer: 0,
+                explanation: "الـ APIs ترجع البيانات عادةً في هيئة مهيكلة مثل JSON أو XML."
+            },
+
+            // Python Basics: Variables, Assigning & Re-assigning (50-65)
+            {
+                q: "ما الغرض الرئيسي من المتغيرات (Variables) في لغة البرمجة بايثون؟",
+                options: ["تسريع الاتصال بالإنترنت", "حجز مكان في الذاكرة لتخزين البيانات واستدعائها أو تعديلها لاحقاً", "حذف الكود البرمجي", "إنشاء بروتوكول جديد"],
+                answer: 1,
+                explanation: "المتغيرات تُستخدم لتخزين وتسمية القيم في الذاكرة لاستخدامها أثناء تشغيل البرنامج."
+            },
+            {
+                q: "أي من أسطر كود بايثون التالية يُعتبر تعييناً صحيحاً لاسم طالب؟",
+                options: ["student-name = 'أحمد'", "student_name = 'أحمد'", "1student = 'أحمد'", "student name = 'أحمد'"],
+                answer: 1,
+                explanation: "في بايثون، أسماء المتغيرات لا تحتوي مسافات ولا تبدأ بأرقام، والشرطة السفلى _ مسموحة."
+            },
+            {
+                q: "ما المخرجات الناتجة من الكود التالي في بايثون؟\nx = 10\nx = 20\nprint(x)",
+                options: ["10", "20", "1020", "حدث خطأ Error"],
+                answer: 1,
+                explanation: "إعادة التعيين (Re-assignment) تلغي القيمة القديمة وتستبدلها بالقيمة الجديدة (20)."
+            },
+            {
+                q: "أي من الخيارات الآتية تعتبر تسمية غير مقبولة (غير صحيحة) لمتغير في Python؟",
+                options: ["user_age", "age_2", "2user_age", "_user_age"],
+                answer: 2,
+                explanation: "أسماء المتغيرات في بايثون لا يمكن أن تبدأ برقم إطلاقاً."
+            },
+            {
+                q: "ما وظيفة الأمر print() في لغة بايثون؟",
+                options: ["طباعة الورق على الطابعة المكتبيّة", "عرض المخرجات أو النصوص أو القيم على الشاشة/الموجه", "إدخال نص من المستخدم", "إغلاق البرنامج"],
+                answer: 1,
+                explanation: "print() هي الدالة القياسية لعرض وطباعة القيم على الشاشة."
+            },
+            {
+                q: "ما ناتج طباعة الكود التالي؟\nname = 'سارة'\nprint('مرحباً', name)",
+                options: ["مرحباً name", "مرحباً سارة", "name", "سارة"],
+                answer: 1,
+                explanation: "الدالة تطبع النص المباشر بين التنصيص ثم تستبدل المتغير بقيمته المخزنة ('سارة')."
+            },
+            {
+                q: "كيف نعرّف متغيراً نصياً يحمل اسم المدرسة في بايثون؟",
+                options: ["school = المدرسة الثانوية", "school = 'المدرسة الثانوية'", "school : 'المدرسة الثانوية'", "var school = 'المدرسة الثانوية'"],
+                answer: 1,
+                explanation: "النصوص في بايثون يجب وضعها داخل علامات تنصيص سينجل أو دبل (' ' أو \" \")."
+            },
+            {
+                q: "ما قيمة المتغير y في نهاية الكود التالي؟\nx = 5\ny = x + 2\nx = 10",
+                options: ["5", "7", "12", "10"],
+                answer: 1,
+                explanation: "y حسبت عند السطر الثاني (5 + 2 = 7)، وتغيير x لاحقاً لـ 10 لا يغير y تلقائياً."
+            },
+            {
+                q: "في بايثون، هل تعتبر المتغيرات ذات الحساسية لحالة الأحرف (Case Sensitive)؟",
+                options: ["نعم، Age و age تعتبران متغيرين مختلفين تماماً", "لا، هما نفس المتغير دائماً", "فقط مع الأرقام", "فقط عند الربط بالسيرفر"],
+                answer: 0,
+                explanation: "بايثون حساسة لحالة الأحرف؛ فالحروف الكبيرة تختلف عن الصغيرة."
+            },
+
+            // Python Arithmetic Operators (+, -, *, /, %, **) (60-80)
+            {
+                q: "ما ناتج العملية الحسابية 10 / 3 في لغة بايثون؟",
+                options: ["3 (عدد صحيح)", "3.3333333333333335 (عدد عشري)", "1", "0"],
+                answer: 1,
+                explanation: "معامل القسمة العادية / في بايثون يُرجع دائماً ناتجاً عشرياً Float."
+            },
+            {
+                q: "ما الناتج الدقيق لمعامل باقي القسمة (Modulus %) في الكود التالي؟\nprint(10 % 3)",
+                options: ["3", "1", "3.33", "0"],
+                answer: 1,
+                explanation: "10 ÷ 3 تساوي 3 والباقي هو 1 (لأن 3 × 3 = 9، و 10 - 9 = 1)."
+            },
+            {
+                q: "ما ناتج العملية الحسابية 15 % 5 في بايثون؟",
+                options: ["3", "1", "0", "5"],
+                answer: 2,
+                explanation: "15 تقبل القسمة على 5 تماماً بدون باقي، لذا الناتج هو 0."
+            },
+            {
+                q: "ما المخرجات للعملية التالية؟\nprint(2 ** 3)",
+                options: ["6", "8", "5", "9"],
+                answer: 1,
+                explanation: "المعامل ** يعبر عن الأسس (Power)؛ أي 2 أس 3 = 2 × 2 × 2 = 8."
+            },
+            {
+                q: "ما مخرجات الكود التوضيحي التالي؟\na = 10\nb = 4\nprint(a - b * 2)",
+                options: ["12", "2", "8", "0"],
+                answer: 1,
+                explanation: "حسب أولوية العمليات، الضرب يسبق الطرح: (4 × 2 = 8)، ثم (10 - 8 = 2)."
+            },
+            {
+                q: "ما ناتج التعبير التالي؟\nprint('أحمد' + ' ' + 'محمد')",
+                options: ["أحمد محمد", "أحمد+محمد", "حدث خطأ Error", "أحمدمحمد"],
+                answer: 0,
+                explanation: "استخدام + مع النصوص يقوم بعمل دمج (Concatenation) للنصوص."
+            },
+            {
+                q: "ماذا يحدث عند محاولة تنفيذ الكود التالي؟\nprint('العمر: ' + 17)",
+                options: ["طبع العمر: 17", "حدوث خطأ TypeError لعدم إمكانية دمج نص مع رقم صحيح مباشرة", "طبع العمر: 0", "تجاهل الرقم"],
+                answer: 1,
+                explanation: "لا يمكن دمج str مع int باستخدام + بغير تحويل الرقم لنص باستخدام str(17)."
+            },
+            {
+                q: "ما ناتج الكود الصحيح الآتي؟\nprint('العمر: ' + str(17))",
+                options: ["العمر: 17", "العمر: str(17)", "TypeError", "17"],
+                answer: 0,
+                explanation: "دالة str(17) تحول الرقم إلى نص مما يسمح بدمجه بنجاح مع النص الآخر."
+            },
+            {
+                q: "أي معامل في بايثون يُستخدم لإجراء القسمة الصحيحة وتجاهل الكسور (Floor Division)؟",
+                options: ["/", "//", "%", "**"],
+                answer: 1,
+                explanation: "المعامل // يقوم بالقسمة مع إهمال الكسور وإرجاع الجزء الصحيح فقط."
+            },
+            {
+                q: "ما ناتج الكود التراكمي التالي؟\nx = 5\nx += 3\nprint(x)",
+                options: ["53", "8", "15", "3"],
+                answer: 1,
+                explanation: "الأمر x += 3 يختصر x = x + 3، بالتالي 5 + 3 = 8."
+            },
+
+            // Applied Practical Code Output Questions (70-85)
+            {
+                q: "ما الناتج المطبوع من البرنامج التالي؟\nx = 7\ny = 2\nprint(x % y)",
+                options: ["3.5", "3", "1", "0"],
+                answer: 2,
+                explanation: "7 ÷ 2 = 3 والباقي 1."
+            },
+            {
+                q: "تتبع الكود الآتي وحدد المخرجات:\nval = 100\nval = val / 2\nprint(type(val))",
+                options: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'bool'>"],
+                answer: 1,
+                explanation: "قسمة / تحول الناتج إلى نوع float (50.0)."
+            },
+            {
+                q: "ما مخرجات البرنامج البرمجي التالي؟\nhobby = 'البرمجة'\nprint('هوايتي:', hobby)",
+                options: ["هوايتي: البرمجة", "هوايتي: hobby", "البرمجة", "Error"],
+                answer: 0,
+                explanation: "تطبع الدالة العبارة النصية المتبوعة بقيمة متغير الهواية."
+            },
+            {
+                q: "إذا كانت a = 4 و b = 3، فما ناتج print(a * b + 2)؟",
+                options: ["20", "14", "24", "10"],
+                answer: 1,
+                explanation: "(4 × 3) = 12، ثم + 2 = 14."
+            },
+            {
+                q: "تتبع قيمة المتغير num:\nnum = 5\nnum = num + 5\nnum = num * 2\nprint(num)",
+                options: ["10", "15", "20", "25"],
+                answer: 2,
+                explanation: "num تصبح 5+5 = 10، ثم 10*2 = 20."
+            },
+            {
+                q: "ما المخرجات الصحيحة للكود التالي؟\nfirst = 'ذكاء'\nsecond = 'اصطناعي'\nprint(first, second)",
+                options: ["ذكاءاصطناعي", "ذكاء اصطناعي", "first second", "Error"],
+                answer: 1,
+                explanation: "الفاصلة , في print() تضع مسافة تلقائية بين العناصر المطبوعة."
+            },
+
+            // Mixed Comprehensive Revision & Curriculum Alignment (80-100)
+            {
+                q: "أي بروتوكول يعتبر الأنسب لنقل واستدعاء الـ APIs من الخوادم بأمان؟",
+                options: ["HTTPS", "HTTP عادي", "FTP", "POP3"],
+                answer: 0,
+                explanation: "تطبيقات الـ APIs تعتمد بشكل أساسي على HTTPS لحماية وتبادل البيانات بين الأنظمة."
+            },
+            {
+                q: "تسمى عملية استبدال قيمة متغير قديمة بقيمة جديدة بـ:",
+                options: ["Re-assignment (إعادة التعيين)", "Formatting", "Compilation", "Looping"],
+                answer: 0,
+                explanation: "تغيير القيمة المخزنة مسبقاً في المتغير يُعرف بـ Re-assignment."
+            },
+            {
+                q: "ما الصيغة التي تعبر عن كائن يحتوي على مصفوفة في JSON؟",
+                options: ["{ 'students': ['أحمد', 'عمر'] }", "[ 'students': 'أحمد' ]", "students = أحمد, عمر", "<students>أحمد</students>"],
+                answer: 0,
+                explanation: "JSON يجمع بين الأقواس المجعدة للكائنات والأقواس المربعة [] للمصفوفات."
+            },
+            {
+                q: "أي الطرق تُستخدم لإلغاء إمكانية تخزين نتائج طلب الويب في الـ Cache لسرية المحتوى؟",
+                options: ["استخدام POST بدلاً من GET", "استخدام GET فقط", "استخدام صور فقط", "عدم استخدام إنترنت"],
+                answer: 0,
+                explanation: "طلبات POST لا تـُخزن عادةً في ذاكرة التخزين المؤقت Cache بعكس طلبات GET."
+            },
+            {
+                q: "عند طلب مورد غير موجود وتلقي الرمز 404، يعتبر هذا خطأ من أي جهة برمجياً؟",
+                options: ["خطأ في طلب العميل (Client Error)", "خطأ داخلي في الخادم", "نجاح", "خطأ في شركة الاتصالات"],
+                answer: 0,
+                explanation: "الرمز 404 مصنف ضمن عائلة 4xx الخاصة بأخطاء طلبات العميل."
+            },
+            {
+                q: "ما ناتج طباعة print(17 // 5) في بايثون؟",
+                options: ["3.4", "3", "2", "17"],
+                answer: 1,
+                explanation: "معامل // يحسب الجزء الصحيح من القسمة بدون كسور (17 ÷ 5 = 3)."
+            },
+            {
+                q: "ما القيمة النهائية للمتغير count؟\ncount = 0\ncount = count + 1\ncount = count + 1",
+                options: ["0", "1", "2", "3"],
+                answer: 2,
+                explanation: "زادت القيمة بمقدار 1 مرتين، فتصبح 2."
+            },
+            {
+                q: "أي البيانات التالية يُفضل إرسالها عبر POST؟",
+                options: ["كلمات المرور والبطاقات الأسرية والبيانات المرفوعة", "البحث عن كتاب في مكتبة", "عرض مقال إخباري عام", "مشاهدة صورة شخصية للعامة"],
+                answer: 0,
+                explanation: "البيانات الخاصة أو الحساسة تُرسل دائماً بطريقة POST."
+            },
+            {
+                q: "تعتبر لغة بايثون لغة عالية المستوى وتتميز بـ:",
+                options: ["سهولة القراءة والفهم وقربها من اللغة البشرية", "تعقيد كتابتها", "عملها فقط بدون حاسوب", "عدم دعمها للمتغيرات"],
+                answer: 0,
+                explanation: "تتميز بايثون ببساطة بنائها اللغوي وسهولة تعلمها."
+            },
+            {
+                q: "عندما يرد الخادم بـ JSON يحتوي على بيانات مستخدم، كيف يتعامل العميل معها؟",
+                options: ["يحولها إلى كائنات برمجية ويحللها لعرضها في الواجهة", "يمسح الشاشة", "يعيد إرسالها للراوتر", "يغلق البرنامج"],
+                answer: 0,
+                explanation: "يقوم العميل بعمل Parsing لبيانات JSON واستخلاص القيم لعرضها بصرياً."
+            },
+            {
+                q: "ما هو الناتج من تنفيذ: print(type('100'))؟",
+                options: ["<class 'int'>", "<class 'str'>", "<class 'float'>", "<class 'bool'>"],
+                answer: 1,
+                explanation: "وجود الرقم بين علامات تنصيص يجعله نصاً String."
+            },
+            {
+                q: "أي مما يلي يُعد بروتوكول اتصال غير آمن لنقل بيانات الاعتماد؟",
+                options: ["HTTP", "HTTPS", "TLS", "SSL"],
+                answer: 0,
+                explanation: "HTTP غير مشفر مما يجعله غير آمن لنقل الاعتمادات."
+            },
+            {
+                q: "ما النتيجة المتوقعة للرمز 503 Service Unavailable؟",
+                options: ["الخدمة غير متاحة حالياً على الخادم بسبب الحمل الزائد أو الصيانة", "تم العثور على الصفحة", "تم مسح البيانات", "العميل غير متصل"],
+                answer: 0,
+                explanation: "503 تشير إلى عدم توفر الخادم مؤقتاً بسبب الصيانة أو كثرة الضغط."
+            },
+            {
+                q: "ما المعامل الحسابي الذي يحسب الأُس المرفوع في بايثون؟",
+                options: ["^", "**", "//", "pow_symbol"],
+                answer: 1,
+                explanation: "الرمز ** هو المخصص للأُسس في بايثون."
+            },
+            {
+                q: "أي من الخيارات التالية يُشير لتفاعل غير متزامن أو جلب بيانات خلفي دون إعادة تحميل الصفحة؟",
+                options: ["استدعاء API بواسطة العميل (AJAX/Fetch)", "إعادة تشغيل الجهاز", "إغلاق المتصفح", "تحميل نظام التشغيل"],
+                answer: 0,
+                explanation: "تقنيات مثل Fetch تتيح استدعاء الـ APIs وجلب JSON في الخلفية دون إنعاش الصفحة."
+            },
+            {
+                q: "ما هو الاختصار الصحيح لـ TLS؟",
+                options: ["Transport Layer Security", "Technical Language System", "Terminal Link Server", "Total Transfer Safety"],
+                answer: 0,
+                explanation: "TLS تعني حماية طبقة النقل Transport Layer Security."
+            },
+            {
+                q: "ما المخرجات للسطر: print(3 + 2 * 4)؟",
+                options: ["20", "11", "14", "24"],
+                answer: 1,
+                explanation: "الضرب أولاً: 2 × 4 = 8، ثم الجمع 3 + 8 = 11."
+            },
+            {
+                q: "أي الممارسات التالية تعتبر الأفضل عند التعامل مع مفاتيح الـ API (API Keys)؟",
+                options: ["إخفاؤها وتخزينها بأمان في الخادم وعم كشفها للعامة", "نشرها في شريط العنوان", "وضعها في صفحة HTML عامة", "إرسالها عبر HTTP مكشوف"],
+                answer: 0,
+                explanation: "مفاتيح API Keys تعتبر سرية ويجب حمايتها من التسريب."
+            },
+            {
+                q: "ماذا يقصد بالـ Request Body في طلبات HTTP؟",
+                options: ["محتوى أو جسم الطلب الذي يحمل البيانات المرسلة مثل JSON أو النماذج", "عنوان السيرفر IP", "اسم متصفح العميل", "سرعة النت"],
+                answer: 0,
+                explanation: "جسم الطلب Request Body يُستخدم لنقل البيانات الضخمة أو الحساسة خاصة في POST."
+            },
+            {
+                q: "تُبنى تطبيقات الويب الحديثة القائمة على الذكاء الاصطناعي بنشاط على استدعاء:",
+                options: ["APIs خاصة بنماذج الذكاء الاصطناعي وتمرير JSON بين العميل والخادم", "أوراق الطباعة", "أقراص مرنة", "بروتوكولات بدائية"],
+                answer: 0,
+                explanation: "تعتمد برمجيات AI الحديثة على ربط نماذجها عبر APIs وتبادل بيانات JSON."
+            },
+            {
+                q: "في بايثون، إذا قمت بطباعة متغير لم تقم بتعريفه سابقاً، ما النتيجة؟",
+                options: ["NameError (خطأ في الاسم)", "طبع 0", "طبع None", "تجاهل الأمر"],
+                answer: 0,
+                explanation: "استخدام متغير غير معرف يتسبب في خطأ NameError."
+            },
+            {
+                q: "ما النتيجة الإجمالية للتقييم فور تسليمك لهذا الامتحان في النظام؟",
+                options: ["احتساب الدرجة أوتوماتيكياً وعرض التقرير والتصحيح الشامل", "انتظار أسبوع للنتيجة", "إلغاء الدرجة", "فقدان البيانات"],
+                answer: 0,
+                explanation: "النظام يُجري تقييماً فورياً ويُظهر التفاصيل الكاملة للأخطاء والتصحيح."
+            }
+        ];
+
+        // Ensure exactly 100 questions array
+        let userAnswers = new Array(100).fill(null);
+        let examSubmitted = false;
+        let timeRemaining = 120 * 60; // 120 minutes in seconds
+        let timerInterval = null;
+        let activeFilter = 'all';
+
+        // Initialize App
+        window.onload = function() {
+            renderQuestions();
+            startTimer();
+            updateProgress();
+        };
+
+        // Start Countdown Timer
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.innerText = "00:00:00";
+                    alert("انتهى الوقت المحدد للامتحان! سيتم تسليم إجاباتك تلقائياً.");
+                    finalizeSubmit();
+                    return;
+                }
+
+                timeRemaining--;
+
+                let hours = Math.floor(timeRemaining / 3600);
+                let minutes = Math.floor((timeRemaining % 3600) / 60);
+                let seconds = timeRemaining % 60;
+
+                let hStr = hours < 10 ? "0" + hours : hours;
+                let mStr = minutes < 10 ? "0" + minutes : minutes;
+                let sStr = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.innerText = `${hStr}:${mStr}:${sStr}`;
+
+                // Warning colors when time is low
+                if (timeRemaining < 600) { // less than 10 mins
+                    timerDisplay.classList.add('text-rose-500', 'animate-bounce');
+                    timerDisplay.classList.remove('text-amber-400');
+                }
+            }, 1000);
+        }
+
+        // Render Questions
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            rawQuestions.forEach((item, index) => {
+                const qNum = index + 1;
+                const isAnswered = userAnswers[index] !== null;
+
+                // Create Question Card
+                const card = document.createElement('div');
+                card.id = `qCard_${index}`;
+                card.className = `question-card bg-white rounded-3xl p-6 shadow-sm border transition duration-200 ${
+                    isAnswered ? 'border-blue-200 bg-blue-50/20' : 'border-slate-200'
+                }`;
+                card.setAttribute('data-answered', isAnswered ? 'true' : 'false');
+
+                // Determine if code block needed formatting
+                let questionHTML = item.q.replace(/\n/g, '<br>');
+
+                let optionsHTML = '';
+                item.options.forEach((opt, optIdx) => {
+                    const isChecked = userAnswers[index] === optIdx;
+                    optionsHTML += `
+                        <label class="option-label flex items-start p-3.5 rounded-2xl border transition cursor-pointer hover:bg-slate-50 ${
+                            isChecked ? 'border-brand-600 bg-blue-50/60 font-semibold text-brand-900 shadow-sm' : 'border-slate-200 text-slate-700'
+                        }">
+                            <input type="radio" name="q_${index}" value="${optIdx}" ${isChecked ? 'checked' : ''} 
+                                   onchange="selectAnswer(${index}, ${optIdx})" 
+                                   class="mt-1 ml-3 h-4 w-4 text-brand-600 focus:ring-brand-500 border-slate-300">
+                            <span class="text-sm leading-relaxed">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-brand-100 text-brand-700 font-black text-xs flex items-center justify-center shrink-0">
+                                ${qNum}
+                            </span>
+                            <h3 class="text-base font-bold text-slate-800 leading-snug">${questionHTML}</h3>
+                        </div>
+                        <span id="badge_${index}" class="text-xs px-2.5 py-1 rounded-full font-bold ${
+                            isAnswered ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
+                        }">
+                            ${isAnswered ? 'تمت الإجابة' : 'غير محلول'}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            applyFilter();
+        }
+
+        // Handle Answer Selection
+        function selectAnswer(qIndex, optionIndex) {
+            if (examSubmitted) return;
+
+            userAnswers[qIndex] = optionIndex;
+
+            // Update UI card state
+            const card = document.getElementById(`qCard_${qIndex}`);
+            const badge = document.getElementById(`badge_${qIndex}`);
+
+            card.setAttribute('data-answered', 'true');
+            card.classList.add('border-blue-200', 'bg-blue-50/20');
+            badge.className = 'text-xs px-2.5 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700';
+            badge.innerText = 'تمت الإجابة';
+
+            // Re-render choices styling for this card
+            const labels = card.querySelectorAll('.option-label');
+            labels.forEach((lbl, idx) => {
+                if (idx === optionIndex) {
+                    lbl.className = 'option-label flex items-start p-3.5 rounded-2xl border transition cursor-pointer border-brand-600 bg-blue-50/60 font-semibold text-brand-900 shadow-sm';
+                } else {
+                    lbl.className = 'option-label flex items-start p-3.5 rounded-2xl border transition cursor-pointer hover:bg-slate-50 border-slate-200 text-slate-700';
+                }
+            });
+
+            updateProgress();
+            applyFilter();
+        }
+
+        // Update Progress Bar & Counter
+        function updateProgress() {
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            document.getElementById('answeredCount').innerText = answeredCount;
+            
+            const pct = (answeredCount / 100) * 100;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+        }
+
+        // Filter Questions Display
+        function filterQuestions(type) {
+            activeFilter = type;
+
+            document.getElementById('btnFilterAll').className = type === 'all' ? 'px-3 py-1 rounded-xl text-xs font-bold bg-brand-600 text-white transition' : 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+            document.getElementById('btnFilterUnanswered').className = type === 'unanswered' ? 'px-3 py-1 rounded-xl text-xs font-bold bg-brand-600 text-white transition' : 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+            document.getElementById('btnFilterAnswered').className = type === 'answered' ? 'px-3 py-1 rounded-xl text-xs font-bold bg-brand-600 text-white transition' : 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+
+            applyFilter();
+        }
+
+        function applyFilter() {
+            rawQuestions.forEach((_, idx) => {
+                const card = document.getElementById(`qCard_${idx}`);
+                if (!card) return;
+
+                const isAns = userAnswers[idx] !== null;
+
+                if (activeFilter === 'all') {
+                    card.classList.remove('hidden');
+                } else if (activeFilter === 'answered') {
+                    if (isAns) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                } else if (activeFilter === 'unanswered') {
+                    if (!isAns) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Submit Confirm Dialogs
+        function confirmSubmit() {
+            if (examSubmitted) return;
+
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            const unanswered = 100 - answeredCount;
+
+            const modalWarning = document.getElementById('modalWarningText');
+            if (unanswered > 0) {
+                modalWarning.innerHTML = `تنبيه: لديك <strong class="text-rose-600 font-black">${unanswered}</strong> سؤال لم تقم بالإجابة عليها بعد!<br>هل أنت تأكد من تسليم الامتحان الآن؟`;
+            } else {
+                modalWarning.innerText = "أحسنت! لقد أجبت على جميع الأسئلة. هل تريد تأكيد التسليم النهائي؟";
+            }
+
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        // Finalize & Calculate Score
+        function finalizeSubmit() {
+            closeModal();
+            examSubmitted = true;
+            clearInterval(timerInterval);
+
+            // Hide normal exam view elements
+            document.getElementById('questionsContainer').classList.add('hidden');
+            document.getElementById('filterControls').classList.add('hidden');
+            document.getElementById('bottomSubmitArea').classList.add('hidden');
+            document.getElementById('submitBtnHeader').classList.add('hidden');
+
+            // Calculate Score
+            let correctCount = 0;
+            rawQuestions.forEach((item, idx) => {
+                if (userAnswers[idx] === item.answer) {
+                    correctCount++;
+                }
+            });
+
+            const wrongCount = 100 - correctCount;
+            const percentage = correctCount; // Since total is 100
+
+            // Update Result Dashboard
+            document.getElementById('scoreText').innerText = `${correctCount} / 100`;
+            document.getElementById('percentageText').innerText = `${percentage}%`;
+            document.getElementById('correctCountText').innerText = correctCount;
+            document.getElementById('wrongCountText').innerText = wrongCount;
+
+            // Set Performance Badge & Message
+            const badgeIcon = document.getElementById('badgeIcon');
+            const performanceMessage = document.getElementById('performanceMessage');
+
+            if (percentage >= 85) {
+                badgeIcon.className = "fa-solid fa-trophy text-4xl text-amber-500";
+                performanceMessage.innerText = "ممتاز! أداء استثنائي وتفوق رائع في المنهج.";
+                performanceMessage.className = "text-emerald-600 font-bold text-lg mb-6";
+            } else if (percentage >= 75) {
+                badgeIcon.className = "fa-solid fa-medal text-4xl text-blue-500";
+                performanceMessage.innerText = "جيد جداً! مستوى مرتفع ومعرفة قوية بالمفاهيم.";
+                performanceMessage.className = "text-blue-600 font-bold text-lg mb-6";
+            } else if (percentage >= 65) {
+                badgeIcon.className = "fa-solid fa-award text-4xl text-indigo-500";
+                performanceMessage.innerText = "جيد! قمت بعمل جيد، ويمكنك مراجعة الأخطاء للتحسين.";
+                performanceMessage.className = "text-indigo-600 font-bold text-lg mb-6";
+            } else {
+                badgeIcon.className = "fa-solid fa-circle-exclamation text-4xl text-rose-500";
+                performanceMessage.innerText = "تحتاج إلى المزيد من المراجعة والتركيز على الدروس.";
+                performanceMessage.className = "text-rose-600 font-bold text-lg mb-6";
+            }
+
+            // Render Detailed Corrections View
+            renderCorrections();
+
+            // Show Result Section
+            document.getElementById('resultCard').classList.remove('hidden');
+
+            // Scroll to top smooth
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render Corrections & Explanations Breakdown
+        function renderCorrections() {
+            const container = document.getElementById('correctionsContainer');
+            container.innerHTML = '';
+
+            rawQuestions.forEach((item, index) => {
+                const userAns = userAnswers[index];
+                const isCorrect = userAns === item.answer;
+                const qNum = index + 1;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-3xl p-6 border shadow-sm ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/10' : 'border-rose-200 bg-rose-50/10'
+                }`;
+
+                let optionsReviewHTML = '';
+                item.options.forEach((opt, optIdx) => {
+                    let optStyle = 'border-slate-200 text-slate-600 bg-white';
+                    let iconHTML = '';
+
+                    if (optIdx === item.answer) {
+                        optStyle = 'border-emerald-500 bg-emerald-50 font-bold text-emerald-900';
+                        iconHTML = '<i class="fa-solid fa-check text-emerald-600 mr-auto text-base"></i>';
+                    } else if (optIdx === userAns && !isCorrect) {
+                        optStyle = 'border-rose-500 bg-rose-50 font-bold text-rose-900';
+                        iconHTML = '<i class="fa-solid fa-xmark text-rose-600 mr-auto text-base"></i>';
+                    }
+
+                    optionsReviewHTML += `
+                        <div class="flex items-center justify-between p-3 rounded-2xl border text-sm ${optStyle}">
+                            <span>${opt}</span>
+                            ${iconHTML}
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl ${isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'} font-black text-xs flex items-center justify-center shrink-0">
+                                ${qNum}
+                            </span>
+                            <h4 class="text-base font-bold text-slate-800">${item.q.replace(/\n/g, '<br>')}</h4>
+                        </div>
+                        <span class="text-xs px-3 py-1 rounded-full font-bold ${
+                            isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                        }">
+                            ${isCorrect ? 'إجابة صحيحة +1' : 'إجابة خاطئة 0'}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        ${optionsReviewHTML}
+                    </div>
+
+                    <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 text-xs md:text-sm text-blue-900 flex items-start gap-3">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-lg shrink-0 mt-0.5"></i>
+                        <div>
+                            <strong class="font-bold block mb-1">الشرح والتوضيح العلمي:</strong>
+                            <p class="leading-relaxed text-slate-700">${item.explanation}</p>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function scrollToReview() {
+            document.getElementById('correctionsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
